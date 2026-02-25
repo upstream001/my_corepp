@@ -69,4 +69,7 @@ runs/
 *.jpeg
 *.gif
 
-./High-throughput 3D shape completion of potato tubers on a harvester.pdf
+High-throughput 3D shape completion of potato tubers on a harvester.pdf
+Agent.md
+.agents/
+PointMamba/
