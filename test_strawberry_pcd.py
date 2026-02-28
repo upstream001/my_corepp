@@ -53,8 +53,11 @@ def main():
     print("Loading Point Cloud Encoder...")
     if param['encoder'] == 'point_cloud':
         encoder = PointCloudEncoder(3, latent_size).to(device)
+    elif param['encoder'] == 'dgcnn':
+        from networks.dgcnn import DGCNNEncoder
+        encoder = DGCNNEncoder(in_channels=3, out_channels=latent_size).to(device)
     else:
-        raise ValueError("Only point_cloud encoder supported in this script.")
+        raise ValueError("Only point_cloud and dgcnn encoders are supported in this script.")
         
     encoder_weight_path = os.path.join(param['checkpoint_dir'], param['checkpoint_file'])
     if not os.path.exists(encoder_weight_path):

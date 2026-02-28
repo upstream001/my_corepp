@@ -115,7 +115,7 @@ if __name__ == "__main__":
         print("未指定文件，使用默认示例文件...")
         input_files = [
             "/home/tianqi/my_corepp/logs/strawberry/test_results/00000_aug_001.ply",
-            "/home/tianqi/my_corepp/data/strawberry/complete/00000_aug_001.ply"
+            "/home/tianqi/my_corepp/deepsdf/experiments/strawberry/Reconstructions/500/Meshes/complete/00000_aug_001.ply"
         ]
     
     visualize(input_files, args.offset)

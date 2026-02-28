@@ -51,8 +51,9 @@ class StrawberryPcdDataset(Dataset):
         instance_name = self.split_ids[idx]
         
         # registered partial point clouds and complete point clouds directly mapped
-        partial_pcd_path = os.path.join(self.data_source, "strawberry/partial", f"{instance_name}.ply")
-        target_pcd_path = os.path.join(self.data_source, "strawberry/complete", f"{instance_name}.ply")
+        # Look directly in partial/ and complete/ under the specified data_source
+        partial_pcd_path = os.path.join(self.data_source, "partial", f"{instance_name}.ply")
+        target_pcd_path = os.path.join(self.data_source, "complete", f"{instance_name}.ply")
         
         partial_pcd = o3d.io.read_point_cloud(partial_pcd_path)
         target_pcd = o3d.io.read_point_cloud(target_pcd_path)

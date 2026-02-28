@@ -11,6 +11,7 @@ from torch.utils.tensorboard import SummaryWriter
 import deepsdf.deep_sdf as deep_sdf
 import deepsdf.deep_sdf.workspace as ws
 from networks.models import Encoder, PointCloudEncoder
+from networks.dgcnn import DGCNNEncoder
 from dataloaders.strawberry_pcd import StrawberryPcdDataset
 # from loss import Loss, RepellingLoss, AttRepLoss
 
@@ -49,8 +50,10 @@ def main():
     # Load Network (Point Cloud Encoder)
     if param['encoder'] == 'point_cloud':
         encoder = PointCloudEncoder(3, latent_size).to(device)
+    elif param['encoder'] == 'dgcnn':
+        encoder = DGCNNEncoder(in_channels=3, out_channels=latent_size).to(device)
     else:
-        raise ValueError("Only point_cloud encoder supported in this pipeline.")
+        raise ValueError("Only point_cloud and dgcnn encoders are supported.")
 
     # Datasets
     latents_pth = os.path.join(experiment_directory, ws.latent_codes_subdir, specs["NumEpochs"].__str__() + ".pth")

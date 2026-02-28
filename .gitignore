@@ -38,6 +38,7 @@ Thumbs.db
 
 # Project Specific - Data
 data/
+data/20260226_dataset_aug/
 datasets/
 
 # Project Specific - DeepSDF Experiments Data
