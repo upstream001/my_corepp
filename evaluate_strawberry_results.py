@@ -54,7 +54,7 @@ def main():
     parser.add_argument(
         "--gt_dir",
         type=str,
-        default="/home/tianqi/my_corepp/data/strawberry/complete",
+        default="/home/tianqi/my_corepp/data/20260226_dataset_aug/complete",
         help="Directory containing ground-truth .ply files.",
     )
     parser.add_argument(
@@ -66,7 +66,7 @@ def main():
     parser.add_argument(
         "--threshold",
         type=float,
-        default=0.005,
+        default=0.1, # Relaxed from 0.005 to handle typical point cloud resolution for fruits
         help="Distance threshold for precision/recall/f1.",
     )
     parser.add_argument(

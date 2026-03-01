@@ -1,5 +1,5 @@
-1. 草莓数据集
-2. python prepare_deepsdf_training_data.py --src ../data/strawberry/complete
+1.草莓数据集
+2.python prepare_deepsdf_training_data.py --src ../data/strawberry/complete
 来准备deepsdf的训练数据
 3.训练deepsdf
 python make_splits.py

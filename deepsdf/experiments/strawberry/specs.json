@@ -1,6 +1,6 @@
 {
     "Description": "Strawberry Deepsdf Pretrain latent=32",
-    "DataSource": "/home/tianqi/my_corepp/data/20260226_dataset_aug/",
+    "DataSource": "/home/tianqi/my_corepp/data/20260301_dataset_aug/",
     "TrainSplit": "/home/tianqi/my_corepp/deepsdf/experiments/splits/strawberry_train.json",
     "TestSplit": "/home/tianqi/my_corepp/deepsdf/experiments/splits/strawberry_test.json",
     "NetworkArch": "deep_sdf_decoder",

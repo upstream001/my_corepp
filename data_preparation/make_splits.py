@@ -2,7 +2,7 @@ import os
 import json
 import random
 
-data_root = "../data/20260226_dataset_aug/complete"
+data_root = "../data/20260301_dataset/complete"
 splits_dir = "../deepsdf/experiments/splits"
 
 os.makedirs(splits_dir, exist_ok=True)
