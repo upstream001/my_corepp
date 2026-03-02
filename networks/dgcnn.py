@@ -40,7 +40,7 @@ def get_graph_feature(x, k=20, idx=None, dim9=False):
     return feature      
 
 class DGCNNEncoder(nn.Module):
-    def __init__(self, in_channels=3, out_channels=32, k=20, emb_dims=1024, dropout=0.5):
+    def __init__(self, in_channels=3, out_channels=32, k=8, emb_dims=1024, dropout=0.5):
         super(DGCNNEncoder, self).__init__()
         self.k = k
         self.latent_size = out_channels

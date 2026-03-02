@@ -18,10 +18,9 @@ def create_mesh(
 
     decoder.eval()
 
-    # We need a slightly larger box than [-0.5, 0.5] because some strawberries have coordinates > 0.5
-    # Let's set it to [-0.8, 0.8] to ensure whole fruit is covered while maintaining good density
-    voxel_origin = [-0.8, -0.8, -0.8]
-    voxel_size = 1.6 / (N - 1)
+    # Restore to standard [-0.5, 0.5] range to match training data scale
+    voxel_origin = [-0.5, -0.5, -0.5]
+    voxel_size = 1.0 / (N - 1)
 
     overall_index = torch.arange(0, N ** 3, 1, out=torch.LongTensor())
     samples = torch.zeros(N ** 3, 4)

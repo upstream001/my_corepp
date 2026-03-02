@@ -10,6 +10,7 @@ import time
 import deepsdf.deep_sdf as deep_sdf
 import deepsdf.deep_sdf.workspace as ws
 from networks.models import PointCloudEncoder
+from networks.pointnext import build_pointnext_encoder
 from dataloaders.strawberry_pcd import StrawberryPcdDataset
 
 def main():
@@ -56,8 +57,10 @@ def main():
     elif param['encoder'] == 'dgcnn':
         from networks.dgcnn import DGCNNEncoder
         encoder = DGCNNEncoder(in_channels=3, out_channels=latent_size).to(device)
+    elif param['encoder'] == 'pointnext':
+        encoder = build_pointnext_encoder(out_channels=latent_size, cfg=param).to(device)
     else:
-        raise ValueError("Only point_cloud and dgcnn encoders are supported in this script.")
+        raise ValueError("Only point_cloud, dgcnn, and pointnext encoders are supported in this script.")
         
     encoder_weight_path = os.path.join(param['checkpoint_dir'], param['checkpoint_file'])
     if not os.path.exists(encoder_weight_path):
@@ -81,6 +84,12 @@ def main():
             # encode partial point cloud to predict latent code
             pred_latent = encoder(encoder_input)
             
+            # encoder_input is now the scaled-down and normalized point cloud.
+            
+            # Fetch the inverse transformation params to bring the box back to physical dimension
+            scale_val = item['scale'].item()
+            center_val = item['center'][0].cpu().numpy() # [3] vector
+            
             # Use deep_sdf.mesh module to run marching cubes
             mesh_filename = os.path.join(args.save_dir, fruit_id) # no .ply ext, deepsdf adds it automatically
             
@@ -91,7 +100,9 @@ def main():
                 mesh_filename, 
                 start=time.time(), 
                 N=args.resolution, 
-                max_batch=int(2 ** 18)
+                max_batch=int(2 ** 18),
+                offset=-center_val, # mesh.py does: mesh_points - offset -> need negative 
+                scale=1.0 / scale_val # mesh.py does: mesh_points / scale -> need inverse
             )
 
     print(f"Testing finished! Total time: {time.time() - start_all:.1f}s")

@@ -10,8 +10,9 @@ from torch.utils.tensorboard import SummaryWriter
 
 import deepsdf.deep_sdf as deep_sdf
 import deepsdf.deep_sdf.workspace as ws
-from networks.models import Encoder, PointCloudEncoder
+from networks.models import PointCloudEncoder, PointCloudEncoder
 from networks.dgcnn import DGCNNEncoder
+from networks.pointnext import build_pointnext_encoder
 from dataloaders.strawberry_pcd import StrawberryPcdDataset
 # from loss import Loss, RepellingLoss, AttRepLoss
 
@@ -52,8 +53,10 @@ def main():
         encoder = PointCloudEncoder(3, latent_size).to(device)
     elif param['encoder'] == 'dgcnn':
         encoder = DGCNNEncoder(in_channels=3, out_channels=latent_size).to(device)
+    elif param['encoder'] == 'pointnext':
+        encoder = build_pointnext_encoder(out_channels=latent_size, cfg=param).to(device)
     else:
-        raise ValueError("Only point_cloud and dgcnn encoders are supported.")
+        raise ValueError("Only point_cloud, dgcnn, and pointnext encoders are supported.")
 
     # Datasets
     latents_pth = os.path.join(experiment_directory, ws.latent_codes_subdir, specs["NumEpochs"].__str__() + ".pth")
@@ -64,7 +67,8 @@ def main():
     loader_test = DataLoader(dataset_test, batch_size=param['batch_size'], shuffle=False)
 
     params = list(encoder.parameters())
-    optim = torch.optim.Adam(params, lr=param["lr"], weight_decay=1e-6)
+    lr = param.get("pointnext_lr", param["lr"]) if param["encoder"] == "pointnext" else param["lr"]
+    optim = torch.optim.Adam(params, lr=lr, weight_decay=1e-6)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optim, gamma=0.97)
 
     n_iter = 0

@@ -33,7 +33,9 @@ def evaluate_one(gt_path, pred_path, threshold):
     cd.update(gt, pred)
     chamfer = cd.compute(print_output=False)
 
-    pr = PrecisionRecall(0.001, 0.01, 10)
+    # Allow custom thresholds to fall within the evaluated range
+    max_t = max(0.01, threshold)
+    pr = PrecisionRecall(0.001, max_t, 10)
     pr.reset()
     pr.update(gt, pred)
     precision, recall, f1, used_t = pr.compute_at_threshold(threshold, print_output=False)
@@ -54,7 +56,7 @@ def main():
     parser.add_argument(
         "--gt_dir",
         type=str,
-        default="/home/tianqi/my_corepp/data/20260226_dataset_aug/complete",
+        default="/home/tianqi/my_corepp/data/20260301_dataset/complete",
         help="Directory containing ground-truth .ply files.",
     )
     parser.add_argument(

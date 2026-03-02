@@ -175,20 +175,27 @@ if __name__ == "__main__":
         # import ipdb; ipdb.set_trace()
         show_swl_points(swl_points, 'All loaded points (green: points, red: viewpoints')
       
-      #%% Cut out 
-      if args.bounding_box:
-        print('Cutout object ...', flush=True)
-        # bbox_min=args.bounding_box[0:3]
-        # bbox_max=args.bounding_box[3:6]
-        
-        bbox_min=np.array([-1, -1.0, 0.34])
-        bbox_max=np.array([ 1, 1, 1.0])
-        swl_points = swl_points[(swl_points[:,0]>=bbox_min[0]) & (swl_points[:,0]<=bbox_max[0]) & 
-                                (swl_points[:,1]>=bbox_min[1]) & (swl_points[:,1]<=bbox_max[1]) & 
-                                (swl_points[:,2]>=bbox_min[2]) & (swl_points[:,2]<=bbox_max[2]), : ]
-        
-        if args.show_truncated_points:
-          show_swl_points(swl_points, 'Points after applying bounding box')
+      #%% Normalize (Center and Scale)
+      print('Normalize object to [-0.5, 0.5] ...', flush=True)
+      
+      # Extract xyz positions
+      pts = swl_points[:, 0:3]
+      
+      # 1. Center the object
+      center = np.mean(pts, axis=0)
+      pts = pts - center
+      
+      # 2. Scale into [-0.5, 0.5] box (total width 1.0)
+      max_dist = np.max(np.abs(pts))
+      scale = max_dist * 2.0
+      if scale > 0:
+          pts = pts / scale
+          
+      # Apply back to swl_points
+      swl_points[:, 0:3] = pts
+      
+      if args.show_truncated_points:
+        show_swl_points(swl_points, 'Points after applying normalization')
   
       #%% Removing noise
       if args.remove_noise:

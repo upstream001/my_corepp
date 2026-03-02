@@ -24,6 +24,7 @@ from dataloaders.transforms import Pad
 from dataloaders.cameralaser_w_masks import MaskedCameraLaserData
 
 from networks.models import Encoder, EncoderBig, ERFNetEncoder, EncoderBigPooled, EncoderPooled, DoubleEncoder, PointCloudEncoder, PointCloudEncoderLarge, FoldNetEncoder
+from networks.pointnext import build_pointnext_encoder
 import networks.utils as net_utils
 
 import open3d as o3d
@@ -91,6 +92,8 @@ def main_function(decoder, pretrain, cfg, latent_size):
         encoder = PointCloudEncoderLarge(in_channels=3, out_channels=latent_size).to(device)
     elif param['encoder'] == 'foldnet':
         encoder = FoldNetEncoder(in_channels=3, out_channels=latent_size).to(device)
+    elif param['encoder'] == 'pointnext':
+        encoder = build_pointnext_encoder(out_channels=latent_size, cfg=param).to(device)
     else:
         encoder = Encoder(in_channels=4, out_channels=latent_size, size=param["input_size"]).to(device)
 
@@ -140,7 +143,7 @@ def main_function(decoder, pretrain, cfg, latent_size):
             start = time.time()
 
             # unpacking inputs
-            if param['encoder'] != 'point_cloud' and param['encoder'] != 'point_cloud_large' and param['encoder'] != 'foldnet':
+            if param['encoder'] != 'point_cloud' and param['encoder'] != 'point_cloud_large' and param['encoder'] != 'foldnet' and param['encoder'] != 'pointnext':
                 encoder_input = torch.cat((item['rgb'], item['depth']), 1).to(device)
             else: 
                 encoder_input = item['partial_pcd'].permute(0, 2, 1).to(device) ## be aware: the current partial pcd is not registered to the target pcd!

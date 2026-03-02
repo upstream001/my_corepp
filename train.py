@@ -21,6 +21,7 @@ from dataloaders.cameralaser_w_masks import MaskedCameraLaserData
 from dataloaders.transforms import Pad, Rotate, RandomHorizontalFlip, RandomVerticalFlip
 
 from networks.models import Encoder, EncoderBig, ERFNetEncoder, EncoderBigPooled, EncoderPooled, DoubleEncoder, PointCloudEncoder, PointCloudEncoderLarge, FoldNetEncoder
+from networks.pointnext import build_pointnext_encoder
 import networks.utils as net_utils
 
 from loss import KLDivLoss, SuperLoss, SDFLoss, RegLatentLoss, AttRepLoss
@@ -79,6 +80,8 @@ def main_function(decoder, pretrain, cfg, latent_size, trunc_val, overfit, updat
         encoder = PointCloudEncoderLarge(in_channels=3, out_channels=latent_size).to(device)
     elif param['encoder'] == 'foldnet':
         encoder = FoldNetEncoder(in_channels=3, out_channels=latent_size).to(device)
+    elif param['encoder'] == 'pointnext':
+        encoder = build_pointnext_encoder(out_channels=latent_size, cfg=param).to(device)
     else:
         encoder = Encoder(in_channels=4, out_channels=latent_size, size=param["input_size"]).to(device)
 
@@ -119,7 +122,8 @@ def main_function(decoder, pretrain, cfg, latent_size, trunc_val, overfit, updat
     else:
         params = list(encoder.parameters()) #+ list(decoder.parameters())
     
-    optim = torch.optim.Adam(params, lr=param["lr"], weight_decay=1e-6)
+    lr = param.get("pointnext_lr", param["lr"]) if param["encoder"] == "pointnext" else param["lr"]
+    optim = torch.optim.Adam(params, lr=lr, weight_decay=1e-6)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optim, gamma=0.97)
 
     print('\ncfg: ', json.dumps(param, indent=4), '\n')
@@ -141,7 +145,7 @@ def main_function(decoder, pretrain, cfg, latent_size, trunc_val, overfit, updat
             loss = 0
 
             # unpacking inputs
-            if param['encoder'] != 'point_cloud' and param['encoder'] != 'point_cloud_large' and param['encoder'] != 'foldnet':
+            if param['encoder'] != 'point_cloud' and param['encoder'] != 'point_cloud_large' and param['encoder'] != 'foldnet' and param['encoder'] != 'pointnext':
                 encoder_input = torch.cat((item['rgb'], item['depth']), 1).to(device)
             else:
                 encoder_input = item['partial_pcd'].permute(0, 2, 1).to(device) ## be aware: the current partial pcd is not registered to the target pcd!
@@ -259,7 +263,7 @@ def main_function(decoder, pretrain, cfg, latent_size, trunc_val, overfit, updat
                 print('\nvalidation...')
                 for _, item in enumerate(tqdm(iter(val_dataset))):
                     try:
-                        if param['encoder'] != 'point_cloud' and param['encoder'] != 'point_cloud_large' and param['encoder'] != 'foldnet':
+                        if param['encoder'] != 'point_cloud' and param['encoder'] != 'point_cloud_large' and param['encoder'] != 'foldnet' and param['encoder'] != 'pointnext':
                             encoder_input = torch.cat((item['rgb'], item['depth']), 1).to(device)
                         else:
                             encoder_input = item['partial_pcd'].permute(0, 2, 1).to(device)

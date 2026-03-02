@@ -61,10 +61,31 @@ class StrawberryPcdDataset(Dataset):
         partial_points = self.sample_pcd(partial_pcd, self.num_points)
         target_points = self.sample_pcd(target_pcd, self.num_points)
         
+        # --- Normalization (Centering and Scaling) ---
+        # 1. Find the center based on the target point cloud (or partial if doing on the fly)
+        # Using target to maintain spatial consistency between partial and complete
+        center = np.mean(target_points, axis=0)
+        
+        # Center both clouds
+        partial_points = partial_points - center
+        target_points = target_points - center
+        
+        # 2. Scale into [-0.5, 0.5] (1.0 width)
+        # Find maximum distance from center across all axes
+        max_dist = np.max(np.abs(target_points))
+        scale = max_dist * 2.0 # The full width corresponding to max dist
+        
+        # Avoid division by zero
+        if scale > 0:
+            partial_points = partial_points / scale
+            target_points = target_points / scale
+        
         item = {
              'fruit_id': instance_name,
              'partial_pcd': torch.from_numpy(partial_points).float(),
-             'target_pcd': torch.from_numpy(target_points).float()
+             'target_pcd': torch.from_numpy(target_points).float(),
+             'center': torch.from_numpy(center).float(), # Save for inverse transform
+             'scale': scale # Save for inverse transform
         }
         
         if self.supervised_3d and self.latents is not None:
